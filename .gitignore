@@ -1,1 +1,5 @@
 /__pycache__
+/main/__pycache__
+/main/utils/__pycache__
+/main/world/__pycache__
+/main/entities/__pycache__
