@@ -3,16 +3,19 @@ from main.utils.import_functions import import_csv
 from main.world.game_data import levels
 from main.utils.settings import *
 from main.world.tiles import Tile 
+from main.world.camera import Camera
 from main.entities.player import Player
 
 class Level:
     def __init__(self, level_index):
         self.player = Player((64,64), TILE_SIZE)
-        self.world_shift = 0
+        self.camera = Camera()
 
+        self.min_x = ''
         self.level_data = levels[level_index]
         self.terrain = import_csv(self.level_data['terrain'])
         self.terrain_sprite = self.create_terrain()
+
 
     def create_terrain(self):
         sprite_group = pg.sprite.Group()
@@ -21,6 +24,13 @@ class Level:
                 if col != '-1':
                     x = col_i * TILE_SIZE
                     y = row_i * TILE_SIZE
+
+                    if self.min_x == '':
+                        self.min_x = x
+
+                    if x < self.min_x:
+                        self.min_x = x
+
                     tile = Tile(x,y,TILE_SIZE)
                     sprite_group.add(tile)
 
@@ -58,12 +68,19 @@ class Level:
                     self.player.velocity.x = 0
                     sprite.image.fill('red')
                     break
+    
 
     def update(self, dt):
-        self.terrain_sprite.update(self.world_shift)
+        self.terrain_sprite.update()
         self.player.update(dt)
         self.ambient_collision()
+        self.camera.update(self.player.rect, self.min_x, self.terrain_sprite.sprites()[-1].rect.x)
 
     def draw(self, surface):
-        self.terrain_sprite.draw(surface)
-        self.player.draw(surface)
+        for tile in self.terrain_sprite.sprites():
+
+            tile.draw(surface, self.camera.offset)
+        
+        
+
+        self.player.draw(surface, self.camera.offset)

@@ -1,5 +1,5 @@
 import pygame as pg
-from main.utils.support import lerp
+from main.utils.settings import GRAVITY, ACCELERATION, FRICTION
 
 class Player(pg.sprite.Sprite):
     def __init__(self, pos, size):
@@ -12,11 +12,7 @@ class Player(pg.sprite.Sprite):
 
         self.position = pg.math.Vector2(self.rect.midbottom)
         self.velocity = pg.math.Vector2(0,0)
-        self.gravity = 40
         self.direction = 0
-        self.speed = 8
-        self.acceleration = 0.1
-        self.friction = 0.2
 
         self.jump_counter = 0
         self.jumping = False
@@ -42,23 +38,26 @@ class Player(pg.sprite.Sprite):
     def movement(self, dt):
         self.apply_gravity(dt)
 
-        if self.direction != 0:
-            self.velocity.x = lerp(self.velocity.x, self.direction * self.speed, self.acceleration)
-            print(self.velocity.x)
-        else:
-            self.velocity.x = lerp(self.velocity.x, 0, self.friction)
-
-        self.position += self.velocity 
         
+        acceleration = ACCELERATION * self.direction
+        acceleration += self.velocity.x * FRICTION
+        
+        self.velocity.x += acceleration
+
+        if abs(self.velocity.x) < 0.18:
+            self.velocity.x = 0
+        
+        self.position += pg.math.Vector2(self.velocity.x + 0.5 * acceleration,self.velocity.y)
+
         self.rect.midbottom = self.position 
     
     def apply_gravity(self, dt):
-        self.velocity.y += self.gravity * dt
+        self.velocity.y += GRAVITY * dt
 
     def jump(self):
         if self.jumping and self.jump_counter <= self.max_jump_counter:
             self.jump_counter += 1
-            self.velocity.y = -8
+            self.velocity.y = -9
         else:
             self.jumping = False
 
@@ -67,6 +66,7 @@ class Player(pg.sprite.Sprite):
         self.jump()
         self.movement(dt)
     
-    def draw(self, surface):
-        surface.blit(self.image, self.rect)
+    def draw(self, surface, offset):
+        offset_rect = pg.Rect((self.rect.x - offset.x, self.rect.y - offset.y), self.image.get_size())
+        surface.blit(self.image, offset_rect)
     
