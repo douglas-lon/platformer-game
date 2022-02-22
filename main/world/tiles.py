@@ -2,6 +2,8 @@ import pygame as pg
 
 class Tile(pg.sprite.Sprite):
     def __init__(self, x, y, size):
+        # Cria uma surface com o tamanho determinado
+        # e coloca ela na posição
         super().__init__()
         self.image = pg.Surface((size, size))
         self.image.fill('black')
@@ -11,7 +13,13 @@ class Tile(pg.sprite.Sprite):
         pass
 
     def draw(self, surface, offset):
-        self.offset_rect = pg.Rect((self.rect.x - offset.x, self.rect.y - offset.y), self.image.get_size())
+        # Desenha a imagem na posição predeterminada pelo offset
+        # Como só o desenho na tela é mudado 
+        # a posição básica da imagem é a mesma
+        self.offset_rect = pg.Rect(
+            (self.rect.x - offset.x, self.rect.y - offset.y), 
+            self.image.get_size()
+            )
         surface.blit(self.image, self.offset_rect)
 
 
