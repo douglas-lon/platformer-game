@@ -9,7 +9,7 @@ class Player(pg.sprite.Sprite):
         self.image = pg.Surface((size,size))
         self.image.fill('green')
         self.rect = self.image.get_rect(topleft=pos)
-        #self.rect.size = (size + 1, size + 1)
+        self.rect.size = (size, size +1)
 
         # Inicializa Vetor para posição e velocidade, 
         # cria variavel para direção
@@ -24,14 +24,23 @@ class Player(pg.sprite.Sprite):
         self.max_jump_counter = 20
         self.on_ground = False
 
+        # Onde o player está colididindo
+        self.collided_side = pg.K_p
+        self.collided_rect = ''
+
     def input_handler(self):
         # Cuida dos iputs '-'
         keys = pg.key.get_pressed()
 
+        can = False
+        if self.collided_rect != '':
+            if self.rect.bottom < self.collided_rect.top:
+                can = True
+
         self.direction = 0
-        if keys[pg.K_RIGHT]:
+        if keys[pg.K_RIGHT] and self.collided_side != pg.K_RIGHT:
             self.direction = 1
-        elif keys[pg.K_LEFT]:
+        elif keys[pg.K_LEFT] and  self.collided_side != pg.K_LEFT:
             self.direction = -1
 
         if keys[pg.K_SPACE] and self.on_ground:
@@ -40,11 +49,17 @@ class Player(pg.sprite.Sprite):
             self.jumping = False
             self.on_ground = False
             self.jump_counter = 0
+
+        if not keys[self.collided_side] or can:
+            self.collided_side = pg.K_p
+    
+        
     
     def apply_gravity(self, dt):
         # Aplica uma gravidade na velocidade y
         # Que é determinada por uma constante e o delta time
         self.velocity.y += GRAVITY * dt
+        
 
     def movement(self, dt):
         self.apply_gravity(dt)
@@ -77,6 +92,7 @@ class Player(pg.sprite.Sprite):
             self.velocity.y = -9
         else:
             self.jumping = False
+        
 
     def update(self, dt):
         self.input_handler()
