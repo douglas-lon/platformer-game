@@ -9,7 +9,7 @@ class Player(pg.sprite.Sprite):
         self.image = pg.Surface((size,size))
         self.image.fill('green')
         self.rect = self.image.get_rect(topleft=pos)
-        self.rect.size = (size, size +1)
+        self.rect.size = (size, size)
 
         # Inicializa Vetor para posição e velocidade, 
         # cria variavel para direção

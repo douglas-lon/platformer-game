@@ -3,13 +3,13 @@ from main.utils.import_functions import import_csv
 from main.world.game_data import levels
 from main.utils.settings import *
 from main.world.tiles import Tile 
-from main.world.camera import Camera
+from main.utils.camera import Camera
 from main.entities.player import Player
 
 class Level:
     def __init__(self, level_index):
         # Inicializa Player e Camera
-        self.player = Player((64,64), TILE_SIZE)
+        self.player = Player((1400,500), TILE_SIZE)
         self.camera = Camera()
 
         # Cria variavel para definir o limite da esquerda do mapa
@@ -49,52 +49,55 @@ class Level:
     
     def ambient_collision(self):
         # Metodo de colisões com objetos do ambiente
-        self.horizontal_collision()
         self.vertical_collision()
+        self.horizontal_collision()
     
     def vertical_collision(self):
+        new_rect = self.player.rect.copy()
+        new_rect.size = (new_rect.size[0],new_rect.size[1] + 2)
         for sprite in self.terrain_sprite.sprites():
 
-            if sprite.rect.colliderect(self.player.rect):
-                # Depois de testar se o sprite colidiu com o player, 
-                # Testa se o bottom do player entra dentro do sprite 
-                # e coloca o player acima do sprite
-                if sprite.rect.top + self.player.velocity.y * 2 > self.player.rect.bottom > sprite.rect.top:
-                    self.player.position.y = sprite.rect.top + 1
+            if not self.player.velocity.y < -1:
+                """if self.player.rect.top <= sprite.rect.top - (self.player.velocity.y +1) <= self.player.rect.bottom and sprite.rect.x - TILE_SIZE < self.player.rect.x < sprite.rect.x + TILE_SIZE:
+                    
+                    self.player.position.y = sprite.rect.top
                     self.player.velocity.y = 0
                     self.player.on_ground = True
-                    sprite.image.fill('white')
-                    break
-                
-                if sprite.rect.bottom + self.player.velocity.y * 2 < self.player.rect.top < sprite.rect.bottom:
-                    if self.player.velocity.y < 0:
-                        self.player.position.y = (sprite.rect.bottom + 1) + TILE_SIZE
+                    break"""
+                if sprite.rect.colliderect(new_rect):
+                    if sprite.rect.top + self.player.velocity.y * 2 > new_rect.bottom > sprite.rect.top:
+                        self.player.rect.bottom = sprite.rect.top
+                        self.player.position.y = sprite.rect.top - 1
                         self.player.velocity.y = 0
-                        self.player.jump_counter = self.player.max_jump_counter + 1 
-                        sprite.image.fill('yellow')
+                        self.player.on_ground = True
                         break
-    
+            else:
+                # self.player.rect.top >= sprite.rect.bottom + ((self.player.velocity.y * -1) +1) <= self.player.rect.bottom
+                if self.player.rect.centery >= sprite.rect.bottom >= self.player.rect.top and sprite.rect.x - TILE_SIZE < self.player.rect.x < sprite.rect.x + TILE_SIZE:
+                    self.player.rect.top = sprite.rect.bottom
+                    self.player.position.y = (sprite.rect.bottom + self.player.rect.width)
+                    self.player.velocity.y = 0
+                    self.player.jump_counter = self.player.max_jump_counter + 1 
+                    break
+
     def horizontal_collision(self):
         for sprite in self.terrain_sprite.sprites():
-            sprite.image.fill('black')
+            
             if sprite.rect.colliderect(self.player.rect):
-                    
-                if self.player.velocity.x < 0 and sprite.rect.top + self.player.velocity.y < self.player.rect.bottom - 2 < sprite.rect.bottom:
-                    x = (sprite.rect.right + self.player.rect.width / 2) + 1
+                if self.player.velocity.x < 0:
+                    x = (sprite.rect.right + self.player.rect.width / 2) 
                     self.player.position.x = x
                     self.player.velocity.x = 0
                     self.player.collided_side = pg.K_LEFT
-                    sprite.image.fill('blue')
                     self.player.collided_rect = sprite.rect
                     break
 
-                if self.player.velocity.x > 0 and sprite.rect.top + self.player.velocity.y < self.player.rect.bottom - 2 < sprite.rect.bottom:
-                    x = (sprite.rect.left - self.player.rect.width / 2) - 1
+                if self.player.velocity.x > 0:
+                    x = (sprite.rect.left - self.player.rect.width / 2)
                     self.player.position.x = x
                     self.player.velocity.x = 0
                     self.player.collided_side = pg.K_RIGHT
                     self.player.collided_rect = sprite.rect
-                    sprite.image.fill('red')
                     break
     
     def update(self, dt):
@@ -106,7 +109,6 @@ class Level:
             self.min_x, 
             self.terrain_sprite.sprites()[-1].rect.x
             )
-        print(self.player.velocity.x)
 
     def draw(self, surface):
         
