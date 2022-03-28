@@ -15,7 +15,12 @@ class Game:
         
         # Cria um timer para travar fps
         self.clock = pg.time.Clock()
-        self.level = Level(-1)
+        self.level = Level(0)
+    
+    def change_current_level(self, index):
+        del self.level
+
+        self.level = Level(index)
     
     def run(self):
         # Game Loop
@@ -25,6 +30,9 @@ class Game:
             self.events()
             self.update()
             self.draw()
+            level_index = self.level.change_level()
+            if level_index != '':
+                self.change_current_level(level_index)
             
         pg.quit()
 

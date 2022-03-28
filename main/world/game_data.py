@@ -3,7 +3,7 @@ test = {
     }
 
 level_0 = {
-    'terrain': './main/assets/level_0.csv'
+    'terrain': './main/assets/level_0/level_0_terrain.csv'
     }
 
 levels = {

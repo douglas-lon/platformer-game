@@ -21,8 +21,8 @@ class Camera:
             offset_x = self.offset.x
 
         # Define limite de baixo
-        if offset_y > 0:
-            offset_y = 0
+        #if offset_y > 0:
+        #    offset_y = 0
         
         self.offset.update(offset_x, offset_y)
         

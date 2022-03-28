@@ -1,25 +1,29 @@
 import pygame as pg
-from main.utils.import_functions import import_csv
-from main.world.game_data import levels
+from main.utils.import_functions import import_csv, import_sprites
 from main.utils.settings import *
-from main.world.tiles import Tile 
+from main.utils.collision import AmbientCollision
 from main.utils.camera import Camera
-from main.entities.player import Player
+from main.world.game_data import levels
+from main.sprites.tiles import Tile 
+from main.sprites.player import Player, TestPlayer
 
 class Level:
     def __init__(self, level_index):
         # Inicializa Player e Camera
-        self.player = Player((1400,500), TILE_SIZE)
+        #self.player = Player((200, 64), TILE_SIZE)
+        self.player = TestPlayer((200, 64), 60)
         self.camera = Camera()
-
         # Cria variavel para definir o limite da esquerda do mapa
         self.min_x = ''
 
+        self.level_index = level_index
         # Carrega o mapa baseado no index passado
         # Cria sprite group e layout
-        self.level_data = levels[level_index]
+        self.t_sprites = import_sprites('./main/assets/imgs/terrain_tileset.png')
+        self.level_data = levels[self.level_index]
         self.terrain = import_csv(self.level_data['terrain'])
         self.terrain_sprite = self.create_terrain()
+
 
     def create_terrain(self):
         sprite_group = pg.sprite.Group()
@@ -41,23 +45,49 @@ class Level:
                         self.min_x = x
                     if x < self.min_x:
                         self.min_x = x
-
-                    tile = Tile(x,y,TILE_SIZE)
+                    tile = Tile(x,y,TILE_SIZE, self.t_sprites[int(col)])
                     sprite_group.add(tile)
 
         return sprite_group
     
-    def ambient_collision(self):
-        # Metodo de colisões com objetos do ambiente
-        self.vertical_collision()
-        self.horizontal_collision()
-    
+    def collision_handler(self):
+        AmbientCollision.vertical_collision(
+            self.player.rect, 
+            self.terrain_sprite.sprites(), 
+            [self.player.on_bottom_collision, self.player.on_top_collision]
+            )
+        AmbientCollision.horizontal_collision(
+            self.player.rect,
+            self.terrain_sprite.sprites(),
+            [self.player.on_left_collision, self.player.on_right_collision],
+            self.player.velocity.x
+            )
+
+
+    def bew_collision(self):
+        new_rect = self.player.rect.copy()
+        new_rect.size = (new_rect.size[0],new_rect.size[1] + 1)
+        for sprite in self.terrain_sprite.sprites():
+            if sprite.rect.colliderect(new_rect):
+                if sprite.rect.left - TILE_SIZE//2 <= new_rect.centerx <= sprite.rect.right + TILE_SIZE//2:
+                    if new_rect.centery < sprite.rect.top:
+                        self.player.rect.bottom = sprite.rect.top
+                        self.player.position.y = sprite.rect.top
+                        self.player.velocity.y = 0
+                        self.player.on_ground = True
+                        break
+
+
     def vertical_collision(self):
+        # Necessário criar um rect maior para colisão para impedir o 
+        # player de ficar 'flicando'
         new_rect = self.player.rect.copy()
         new_rect.size = (new_rect.size[0],new_rect.size[1] + 2)
         for sprite in self.terrain_sprite.sprites():
 
             if not self.player.velocity.y < -1:
+                # O motivo de fazer a colisão de baixo só quando o player
+                # não estiver indo para cima e para evitar alguns bugs com plataformas acima do player
                 """if self.player.rect.top <= sprite.rect.top - (self.player.velocity.y +1) <= self.player.rect.bottom and sprite.rect.x - TILE_SIZE < self.player.rect.x < sprite.rect.x + TILE_SIZE:
                     
                     self.player.position.y = sprite.rect.top
@@ -100,15 +130,24 @@ class Level:
                     self.player.collided_rect = sprite.rect
                     break
     
+    def change_level(self):
+        level_index = ''
+        if self.player.rect.x > self.terrain_sprite.sprites()[-1].rect.x and level_index != 0:
+            level_index = self.level_index + 1
+        
+        return level_index
+    
     def update(self, dt):
         self.terrain_sprite.update()
         self.player.update(dt)
-        self.ambient_collision()
+        self.collision_handler()
         self.camera.update(
             self.player.rect, 
             self.min_x, 
             self.terrain_sprite.sprites()[-1].rect.x
             )
+        #print(self.player.on_ground)
+        #print(self.player.velocity.y)
 
     def draw(self, surface):
         

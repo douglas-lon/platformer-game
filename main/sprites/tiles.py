@@ -1,12 +1,12 @@
 import pygame as pg
 
 class Tile(pg.sprite.Sprite):
-    def __init__(self, x, y, size):
+    def __init__(self, x, y, size, surface):
         # Cria uma surface com o tamanho determinado
         # e coloca ela na posição
         super().__init__()
-        self.image = pg.Surface((size, size))
-        self.image.fill('black')
+        self.image = surface
+        #self.image.fill('black')
         self.rect = self.image.get_rect(topleft=(x,y))
     
     def update(self):
