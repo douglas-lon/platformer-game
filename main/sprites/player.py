@@ -18,6 +18,8 @@ class Player(pg.sprite.Sprite):
         self.velocity = pg.math.Vector2(0,0)
         self.direction = 0
 
+        self.jumping = False
+        self.jump_count = 0
         # Cria um contador para o tempo do jump e o limite,
         #  junto com variaveis booleanas para impedir double jump
         self.on_ground = False
@@ -25,7 +27,6 @@ class Player(pg.sprite.Sprite):
     def input_handler(self):
         # Cuida dos iputs '-'
         keys = pg.key.get_pressed()
-        self.on_ground = False
 
         self.direction = 0
         if keys[pg.K_RIGHT]:
@@ -33,19 +34,18 @@ class Player(pg.sprite.Sprite):
         elif keys[pg.K_LEFT]:
             self.direction = -1
 
-
         if keys[pg.K_SPACE]:
             self.jump()
         
+        self.on_ground = False
     
     
     def apply_gravity(self, dt):
         # Aplica uma gravidade na velocidade y
         # Que é determinada por uma constante e o delta time
         self.velocity.y += GRAVITY * dt
-        
 
-    def movement(self, dt):
+    def movement(self):
         #self.apply_gravity(dt)
 
         # Define para que lado ele ira acelerar
@@ -70,13 +70,18 @@ class Player(pg.sprite.Sprite):
         self.rect.midbottom = self.position 
 
     def jump(self):
-        self.velocity.y = -9
+        print(f'{self.velocity.y} {self.jump_count} {self.on_ground}')
+        if self.jump_count <= 20:
+            self.velocity.y -= 2
+            self.jump_count += 2
+
 
     def on_bottom_collision(self, rect):
-        self.rect.bottom = rect.top
-        self.position.y = rect.top
-        self.velocity.y = 0
-        self.on_ground = True
+        if self.velocity.y > 0:
+            self.rect.bottom = rect.top
+            self.position.y = rect.top
+            self.velocity.y = 0
+            self.on_ground = True
 
     def on_top_collision(self, rect):
         self.rect.top = rect.bottom
@@ -94,10 +99,12 @@ class Player(pg.sprite.Sprite):
         self.velocity.x = 0
 
     def update(self, dt):
+        if self.on_ground:
+            self.jump_count = 0
         self.input_handler()
         if not self.on_ground:
             self.apply_gravity(dt)
-        self.movement(dt)
+        self.movement()
     
     def draw(self, surface, offset):
         # Desenha na tela o player baseado no offset

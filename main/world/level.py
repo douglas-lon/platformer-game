@@ -28,12 +28,11 @@ class Level:
     def create_terrain(self):
         sprite_group = pg.sprite.Group()
 
-        # Percorre as linhas das coordenadas
         for row_i, row in enumerate(self.terrain):
-            # Percorre as colunas das coordenadas
             for col_i, col in enumerate(row):
                 # Testa se não é um espaço em branco
                 if col != '-1':
+
                     # Define uma cordenada baseada na posição 
                     # na lista e no tamanho do Tile
                     x = col_i * TILE_SIZE
@@ -43,6 +42,7 @@ class Level:
                     # valor da esquerda(Limite)
                     if self.min_x == '':
                         self.min_x = x
+
                     if x < self.min_x:
                         self.min_x = x
                     tile = Tile(x,y,TILE_SIZE, self.t_sprites[int(col)])
@@ -62,73 +62,6 @@ class Level:
             [self.player.on_left_collision, self.player.on_right_collision],
             self.player.velocity.x
             )
-
-
-    def bew_collision(self):
-        new_rect = self.player.rect.copy()
-        new_rect.size = (new_rect.size[0],new_rect.size[1] + 1)
-        for sprite in self.terrain_sprite.sprites():
-            if sprite.rect.colliderect(new_rect):
-                if sprite.rect.left - TILE_SIZE//2 <= new_rect.centerx <= sprite.rect.right + TILE_SIZE//2:
-                    if new_rect.centery < sprite.rect.top:
-                        self.player.rect.bottom = sprite.rect.top
-                        self.player.position.y = sprite.rect.top
-                        self.player.velocity.y = 0
-                        self.player.on_ground = True
-                        break
-
-
-    def vertical_collision(self):
-        # Necessário criar um rect maior para colisão para impedir o 
-        # player de ficar 'flicando'
-        new_rect = self.player.rect.copy()
-        new_rect.size = (new_rect.size[0],new_rect.size[1] + 2)
-        for sprite in self.terrain_sprite.sprites():
-
-            if not self.player.velocity.y < -1:
-                # O motivo de fazer a colisão de baixo só quando o player
-                # não estiver indo para cima e para evitar alguns bugs com plataformas acima do player
-                """if self.player.rect.top <= sprite.rect.top - (self.player.velocity.y +1) <= self.player.rect.bottom and sprite.rect.x - TILE_SIZE < self.player.rect.x < sprite.rect.x + TILE_SIZE:
-                    
-                    self.player.position.y = sprite.rect.top
-                    self.player.velocity.y = 0
-                    self.player.on_ground = True
-                    break"""
-                if sprite.rect.colliderect(new_rect):
-                    if sprite.rect.top + self.player.velocity.y * 2 > new_rect.bottom > sprite.rect.top:
-                        self.player.rect.bottom = sprite.rect.top
-                        self.player.position.y = sprite.rect.top - 1
-                        self.player.velocity.y = 0
-                        self.player.on_ground = True
-                        break
-            else:
-                # self.player.rect.top >= sprite.rect.bottom + ((self.player.velocity.y * -1) +1) <= self.player.rect.bottom
-                if self.player.rect.centery >= sprite.rect.bottom >= self.player.rect.top and sprite.rect.x - TILE_SIZE < self.player.rect.x < sprite.rect.x + TILE_SIZE:
-                    self.player.rect.top = sprite.rect.bottom
-                    self.player.position.y = (sprite.rect.bottom + self.player.rect.width)
-                    self.player.velocity.y = 0
-                    self.player.jump_counter = self.player.max_jump_counter + 1 
-                    break
-
-    def horizontal_collision(self):
-        for sprite in self.terrain_sprite.sprites():
-            
-            if sprite.rect.colliderect(self.player.rect):
-                if self.player.velocity.x < 0:
-                    x = (sprite.rect.right + self.player.rect.width / 2) 
-                    self.player.position.x = x
-                    self.player.velocity.x = 0
-                    self.player.collided_side = pg.K_LEFT
-                    self.player.collided_rect = sprite.rect
-                    break
-
-                if self.player.velocity.x > 0:
-                    x = (sprite.rect.left - self.player.rect.width / 2)
-                    self.player.position.x = x
-                    self.player.velocity.x = 0
-                    self.player.collided_side = pg.K_RIGHT
-                    self.player.collided_rect = sprite.rect
-                    break
     
     def change_level(self):
         level_index = ''
@@ -146,7 +79,6 @@ class Level:
             self.min_x, 
             self.terrain_sprite.sprites()[-1].rect.x
             )
-        #print(self.player.on_ground)
         #print(self.player.velocity.y)
 
     def draw(self, surface):
