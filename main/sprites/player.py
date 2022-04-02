@@ -1,5 +1,6 @@
 import pygame as pg
 from main.utils.settings import GRAVITY, ACCELERATION, FRICTION, TILE_SIZE
+from main.items.gun import Gun
 
 class Player(pg.sprite.Sprite):
     def __init__(self, pos, size):
@@ -17,12 +18,14 @@ class Player(pg.sprite.Sprite):
         self.position = pg.math.Vector2(self.rect.midbottom)
         self.velocity = pg.math.Vector2(0,0)
         self.direction = 0
+        self.facing = 1
 
         self.jumping = False
         self.jump_count = 0
         # Cria um contador para o tempo do jump e o limite,
         #  junto com variaveis booleanas para impedir double jump
         self.on_ground = False
+        self.gun = Gun((264,60))
 
     def input_handler(self):
         # Cuida dos iputs '-'
@@ -31,8 +34,10 @@ class Player(pg.sprite.Sprite):
         self.direction = 0
         if keys[pg.K_RIGHT]:
             self.direction = 1
+            self.facing = 1
         elif keys[pg.K_LEFT]:
             self.direction = -1
+            self.facing = 0
 
         if keys[pg.K_SPACE]:
             self.jump()
@@ -70,7 +75,7 @@ class Player(pg.sprite.Sprite):
         self.rect.midbottom = self.position 
 
     def jump(self):
-        print(f'{self.velocity.y} {self.jump_count} {self.on_ground}')
+        #print(f'{self.velocity.y} {self.jump_count} {self.on_ground}')
         if self.jump_count <= 20:
             self.velocity.y -= 2
             self.jump_count += 2
@@ -105,6 +110,7 @@ class Player(pg.sprite.Sprite):
         if not self.on_ground:
             self.apply_gravity(dt)
         self.movement()
+        self.gun.update_pos(self.rect.center, self.facing)
     
     def draw(self, surface, offset):
         # Desenha na tela o player baseado no offset
@@ -113,6 +119,7 @@ class Player(pg.sprite.Sprite):
             self.image.get_size()
             )
         surface.blit(self.image, offset_rect)
+        self.gun.draw(surface, offset)
     
 class TestPlayer(Player):
     def __init__(self, pos, size):

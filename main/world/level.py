@@ -1,4 +1,5 @@
 import pygame as pg
+from main.items.gun import Gun
 from main.utils.import_functions import import_csv, import_sprites
 from main.utils.settings import *
 from main.utils.collision import AmbientCollision
@@ -79,7 +80,6 @@ class Level:
             self.min_x, 
             self.terrain_sprite.sprites()[-1].rect.x
             )
-        #print(self.player.velocity.y)
 
     def draw(self, surface):
         

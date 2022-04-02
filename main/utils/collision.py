@@ -14,7 +14,7 @@ class AmbientCollision:
                 #print(collidable_rect.bottom, sprite.rect.top, main.bottom)
                 if sprite.rect.left - TILE_SIZE//2 <= collidable_rect.centerx <= sprite.rect.right + TILE_SIZE//2:
 
-                    if collidable_rect.centery < sprite.rect.top:
+                    if collidable_rect.top < sprite.rect.top:
                         callback[0](sprite.rect)
                         break
                     
