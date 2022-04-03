@@ -1,7 +1,7 @@
 import pygame as pg
 from main.utils.settings import TILE_SIZE
 
-class AmbientCollision:
+class OneToManyCollision:
     @staticmethod
     def vertical_collision(main, secondary, callback):
         collidable_rect = main.copy()
@@ -21,7 +21,6 @@ class AmbientCollision:
                     if collidable_rect.centery > sprite.rect.bottom:
                         callback[1](sprite.rect)
                         break
-
     
     @staticmethod
     def horizontal_collision(main, secondary, callback, direction):
@@ -48,3 +47,10 @@ class AmbientCollision:
                         #print(collidable_rect.right, sprite.rect.left, main.right)
                         callback[1](sprite.rect)
                         break
+
+
+class ManyToManyCollision:
+    @staticmethod
+    def any_side_collision(first_group, second_group, dokill, callback):
+        if pg.sprite.groupcollide(first_group, second_group, dokill[0], dokill[1]):
+            callback()

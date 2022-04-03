@@ -41,6 +41,9 @@ class Player(pg.sprite.Sprite):
 
         if keys[pg.K_SPACE]:
             self.jump()
+
+        if keys[pg.K_z]:
+            self.gun.fire()
         
         self.on_ground = False
     

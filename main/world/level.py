@@ -2,16 +2,17 @@ import pygame as pg
 from main.items.gun import Gun
 from main.utils.import_functions import import_csv, import_sprites
 from main.utils.settings import *
-from main.utils.collision import AmbientCollision
+from main.utils.collision import OneToManyCollision
 from main.utils.camera import Camera
 from main.world.game_data import levels
 from main.sprites.tiles import Tile 
 from main.sprites.player import Player, TestPlayer
+from main.utils.collision import ManyToManyCollision
 
 class Level:
     def __init__(self, level_index):
         # Inicializa Player e Camera
-        #self.player = Player((200, 64), TILE_SIZE)
+        #self.player = Player((200, 64), TILE_SIZE))
         self.player = TestPlayer((200, 64), 60)
         self.camera = Camera()
         # Cria variavel para definir o limite da esquerda do mapa
@@ -24,7 +25,6 @@ class Level:
         self.level_data = levels[self.level_index]
         self.terrain = import_csv(self.level_data['terrain'])
         self.terrain_sprite = self.create_terrain()
-
 
     def create_terrain(self):
         sprite_group = pg.sprite.Group()
@@ -52,17 +52,19 @@ class Level:
         return sprite_group
     
     def collision_handler(self):
-        AmbientCollision.vertical_collision(
+        OneToManyCollision.vertical_collision(
             self.player.rect, 
             self.terrain_sprite.sprites(), 
             [self.player.on_bottom_collision, self.player.on_top_collision]
             )
-        AmbientCollision.horizontal_collision(
+        OneToManyCollision.horizontal_collision(
             self.player.rect,
             self.terrain_sprite.sprites(),
             [self.player.on_left_collision, self.player.on_right_collision],
             self.player.velocity.x
             )
+
+        ManyToManyCollision.any_side_collision(self.player.gun.bullets, self.terrain_sprite, [True, False] , print)
     
     def change_level(self):
         level_index = ''
