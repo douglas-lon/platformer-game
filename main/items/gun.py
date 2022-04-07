@@ -12,8 +12,10 @@ class Gun(pg.sprite.Sprite):
         self.bullets = pg.sprite.Group()
         self.change = False
         self.bullet_distance = 400
+        self.time = 30
 
     def update_pos(self, pos, direction):
+        self.time += 1
         if direction > 0:
             offset = 30
             self.change = False
@@ -27,11 +29,13 @@ class Gun(pg.sprite.Sprite):
         self.manage_bullets()
 
     def fire(self):
-        if self.change:
-            self.bullets.add(Bullet(self.rect.topleft, -4))
-        else:
-            self.bullets.add(Bullet(self.rect.topright, 4))
-        print('pow', len(self.bullets))
+        if self.time >= 30:
+            if self.change:
+                self.bullets.add(Bullet(self.rect.topleft, -4))
+            else:
+                self.bullets.add(Bullet(self.rect.topright, 4))
+            self.time = 0
+            print('pow', len(self.bullets))
 
     def manage_bullets(self):
         if self.bullets:

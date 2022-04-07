@@ -16,15 +16,17 @@ def import_sprites(path):
     qtd_sprite_y = full_image.get_size()[1] // TILE_SIZE
 
     separated_sprites = []
-    for row in range(qtd_sprite_x):
-        for col in range(qtd_sprite_y):
-            x = col * TILE_SIZE
-            y = row * TILE_SIZE
+    for col in range(qtd_sprite_y):
+        for row in range(qtd_sprite_x):
+            x = row * TILE_SIZE
+            y = col * TILE_SIZE
 
-            sprite = pg.Surface((TILE_SIZE, TILE_SIZE), flags=pg.SRCALPHA)
-            sprite.blit(full_image, (0,0), pg.Rect(x,y, TILE_SIZE, TILE_SIZE))
+            sprite = full_image.subsurface(pg.Rect(x,y, TILE_SIZE, TILE_SIZE))
 
-            separated_sprites.append(sprite)
+            new_sprite = pg.Surface((TILE_SIZE, TILE_SIZE), flags=pg.SRCALPHA)
+            new_sprite.blit(sprite, (0,0))
+            
+            separated_sprites.append(new_sprite)
     
     return separated_sprites
 
