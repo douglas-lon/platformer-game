@@ -2,19 +2,18 @@ import pygame as pg
 from main.sprites.enemies import Enemy
 from main.utils.import_functions import import_csv, import_sprites
 from main.utils.settings import *
-from main.utils.collision import OneToManyCollision
+from main.utils.collision import OneToManyCollision, ManyToManyCollision
 from main.utils.camera import Camera
 from main.world.game_data import levels
 from main.sprites.tiles import Tile 
 from main.sprites.player import Player, TestPlayer
-from main.utils.collision import ManyToManyCollision
 
 class Level:
     def __init__(self, level_index):
         # Inicializa Player e Camera
         #self.player = Player((200, 64), TILE_SIZE))
         self.player = TestPlayer((200, 64), 60)
-        self.enemie = Enemy((400, 200), 60)
+        #self.enemie = Enemy((400, 200), 60)
         self.camera = Camera()
         # Cria variavel para definir o limite da esquerda do mapa
         self.min_x = 0
@@ -46,6 +45,11 @@ class Level:
                     x = col_i * TILE_SIZE
                     y = row_i * TILE_SIZE
 
+                    if sprite_name == 'enemy':
+                        enemy = Enemy((x, y + 4), 60)
+                        sprite_group.add(enemy)
+                        continue
+
                     tile = Tile(x,y,TILE_SIZE, sprites[int(col)])
                     sprite_group.add(tile)
 
@@ -66,6 +70,12 @@ class Level:
             )
 
         ManyToManyCollision.any_side_collision(self.player.gun.bullets, self.sprites['terrain'], [True, False] , print)
+
+        for enemy in self.sprites['enemy'].sprites():
+            OneToManyCollision.any_side_collision(
+                enemy.rect, 
+                self.sprites['boundaries'].sprites(), 
+                enemy.on_boundarie_collision)
     
     def change_level(self):
         level_index = ''
@@ -78,7 +88,13 @@ class Level:
         #self.terrain_sprite.update()
         self.player.update(dt)
         self.collision_handler()
-        self.enemie.update(self.player.rect)
+        
+        for key in list(self.sprites):
+            if key == 'enemy':
+                for spr in self.sprites[key].sprites():
+                    spr.update(self.player.rect)
+
+
         self.camera.update(
             self.player.rect, 
             self.min_x, 
@@ -97,7 +113,7 @@ class Level:
             for sprite in self.sprites.get(key).sprites():
                 sprite.draw(surface, self.camera.offset)
         
-        self.enemie.draw(surface, self.camera.offset)
+        #self.enemie.draw(surface, self.camera.offset)
         self.player.draw(surface, self.camera.offset)
 
         for grass in self.sprites['grass'].sprites():

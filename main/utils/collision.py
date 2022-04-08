@@ -47,6 +47,14 @@ class OneToManyCollision:
                         #print(collidable_rect.right, sprite.rect.left, main.right)
                         callback[1](sprite.rect)
                         break
+    
+    @staticmethod
+    def any_side_collision(main, secondary, callback):
+
+        for sprite in secondary:
+            if sprite.rect.colliderect(main):
+                callback(sprite.rect)
+                break
 
 
 class ManyToManyCollision:

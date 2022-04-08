@@ -9,6 +9,7 @@ level_0 = {
     'door': './main/assets/level_0/level_0_door.csv',
     'enemy': './main/assets/level_0/level_0_enemy.csv',
     'grass': './main/assets/level_0/level_0_grass.csv',
+    'key': './main/assets/level_0/level_0_key.csv',
     'player': './main/assets/level_0/level_0_player.csv',
     'imgs': {
         'terrain': './main/assets/imgs/terrain_tileset.png',
@@ -17,6 +18,7 @@ level_0 = {
         'door': './main/assets/imgs/door.png',
         'enemy': './main/assets/imgs/enemy.png',
         'grass': './main/assets/imgs/grass_fine.png',
+        'key': './main/assets/imgs/key.png',
         'player': './main/assets/imgs/player.png'
         }
     }
