@@ -7,9 +7,10 @@ class Player(pg.sprite.Sprite):
         super().__init__()
         
         # Cria surface com o tamanho desejado e coloca ela na posição
-        self.image = pg.image.load('./main/assets/imgs/player.png').convert_alpha()
-        #self.image = pg.Surface((64,64))
-        #self.image.fill('green')
+        self.image = pg.image.load(
+            './main/assets/imgs/player.png'
+            ).convert_alpha()
+            
         self.rect = self.image.get_rect(topleft=pos)
         self.rect.size = (size, size)
 
@@ -78,7 +79,6 @@ class Player(pg.sprite.Sprite):
         self.rect.midbottom = self.position 
 
     def jump(self):
-        #print(f'{self.velocity.y} {self.jump_count} {self.on_ground}')
         if self.jump_count <= 20:
             self.velocity.y -= 2
             self.jump_count += 2

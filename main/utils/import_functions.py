@@ -21,9 +21,13 @@ def import_sprites(path):
             x = row * TILE_SIZE
             y = col * TILE_SIZE
 
-            sprite = full_image.subsurface(pg.Rect(x,y, TILE_SIZE, TILE_SIZE))
+            sprite = full_image.subsurface(
+                    pg.Rect(x,y, TILE_SIZE, TILE_SIZE)
+                    )
 
-            new_sprite = pg.Surface((TILE_SIZE, TILE_SIZE), flags=pg.SRCALPHA)
+            new_sprite = pg.Surface(
+                (TILE_SIZE, TILE_SIZE), flags=pg.SRCALPHA
+                )
             new_sprite.blit(sprite, (0,0))
             
             separated_sprites.append(new_sprite)

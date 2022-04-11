@@ -2,7 +2,8 @@ import pygame as pg
 from main.sprites.enemies import Enemy
 from main.utils.import_functions import import_csv, import_sprites
 from main.utils.settings import *
-from main.utils.collision import OneToManyCollision, ManyToManyCollision
+from main.utils.collision import(OneToManyCollision, 
+                                ManyToManyCollision)
 from main.utils.camera import Camera
 from main.world.game_data import levels
 from main.sprites.tiles import Tile 
@@ -32,7 +33,9 @@ class Level:
                 break
 
             data_csv = import_csv(data.get(key))
-            self.sprites[key] = self.create_sprite_groups(data_csv, key)
+            self.sprites[key] = self.create_sprite_groups(
+                data_csv, key
+                )
 
     def create_sprite_groups(self, data, sprite_name):
         sprite_group = pg.sprite.Group()
@@ -59,27 +62,49 @@ class Level:
         OneToManyCollision.vertical_collision(
             self.player.rect, 
             self.sprites['terrain'].sprites(), 
-            [self.player.on_bottom_collision, self.player.on_top_collision]
+            [
+                self.player.on_bottom_collision, 
+                self.player.on_top_collision
+            ]
             )
             
         OneToManyCollision.horizontal_collision(
             self.player.rect,
             self.sprites['terrain'].sprites(),
-            [self.player.on_left_collision, self.player.on_right_collision],
+            [
+                self.player.on_left_collision, 
+                self.player.on_right_collision
+            ],
             self.player.velocity.x
             )
 
-        ManyToManyCollision.any_side_collision(self.player.gun.bullets, self.sprites['terrain'], [True, False] , print)
+        ManyToManyCollision.any_side_collision(
+            self.player.gun.bullets, 
+            self.sprites['terrain'], 
+            [True, False] , print
+            )
 
         for enemy in self.sprites['enemy'].sprites():
+
             OneToManyCollision.any_side_collision(
-                enemy.rect, 
-                self.sprites['boundaries'].sprites(), 
-                enemy.on_boundarie_collision)
+                enemy, 
+                self.sprites['boundaries'], 
+                enemy.on_boundarie_collision
+                )
+
+            OneToManyCollision.any_side_collision(
+                enemy,
+                self.player.gun.bullets,
+                enemy.on_bullet_collision,
+                True
+                )
     
     def change_level(self):
         level_index = ''
-        if self.player.rect.x > self.sprites['terrain'].sprites()[-1].rect.x and level_index != 0:
+        if (self.player.rect.x 
+                > self.sprites['terrain'].sprites()[-1].rect.x 
+                and level_index != 0):
+                
             level_index = self.level_index + 1
         
         return level_index
@@ -92,6 +117,8 @@ class Level:
         for key in list(self.sprites):
             if key == 'enemy':
                 for spr in self.sprites[key].sprites():
+                    if spr.health <= 0:
+                        self.sprites[key].remove(spr)
                     spr.update(self.player.rect)
 
 

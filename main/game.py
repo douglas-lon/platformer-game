@@ -31,6 +31,7 @@ class Game:
             self.update()
             self.draw()
             level_index = self.level.change_level()
+            
             if level_index != '':
                 self.change_current_level(level_index)
             

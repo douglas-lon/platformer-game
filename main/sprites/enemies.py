@@ -11,6 +11,9 @@ class Enemy(pg.sprite.Sprite):
 
         self.velocity_x = randint(4, 6)
         self.direction = 1
+        self.knockback = 0
+
+        self.health = 100
 
     def move(self, direction):
         self.rect.x += (self.velocity_x * direction)    
@@ -18,8 +21,13 @@ class Enemy(pg.sprite.Sprite):
     def update(self, player_rect):
         self.state_controller(player_rect)
 
+        # Move o inimigo para trás quando ele é atigingido
+        if self.knockback > 0:
+            self.rect.x += (self.direction*-1) * 10
+            self.knockback -= 1
+
     def find_player(self, player_rect):
-        #self.direction = 0
+        # Achara o lado em que o player está em relação ao inimigo
 
         if player_rect.right - 10 >= self.rect.right:
             self.direction = 1
@@ -29,6 +37,8 @@ class Enemy(pg.sprite.Sprite):
         return self.direction
 
     def chase_player(self, player_rect):
+        # Move na direção do player
+
         direction = self.find_player(player_rect)
         self.move(direction)
     
@@ -37,17 +47,28 @@ class Enemy(pg.sprite.Sprite):
     
     def state_controller(self,  player_rect):
         if abs(distance_betwewn_rects(self.rect, player_rect)) <= 300:
+            # Testa se a distancia entre o player e o inimigo é 
+            # menor que 300 para o inimigo correr atrás dele
+
             self.chase_player(player_rect)
         else:
             self.idle()
 
     def on_boundarie_collision(self, rect):
+
         if self.rect.right <= rect.right:
             self.rect.right = rect.left
         elif rect.left <= self.rect.left:
             self.rect.left = rect.right
             
         self.direction *= -1
+
+    def on_bullet_collision(self, sprite_rect):
+        self.knockback = 20
+        self.take_damage(20)
+
+    def take_damage(self, dmg):
+        self.health -= dmg
 
     def draw(self, surface, offset):
         
@@ -56,3 +77,12 @@ class Enemy(pg.sprite.Sprite):
             self.image.get_size()
             )
         surface.blit(self.image, offset_rect)
+
+        # Calcula a porcentagem da vida atual para desenhar na tela
+        health_percentage = (60*self.health) / 100
+        offset_rect_health = pg.Rect(
+            (self.rect.x - offset.x, (self.rect.y - 30) - offset.y), 
+            (health_percentage, 10)
+            )
+
+        pg.draw.rect(surface, 'yellow', offset_rect_health)
