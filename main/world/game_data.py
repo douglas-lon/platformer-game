@@ -1,5 +1,14 @@
 test = {
-    'terrain': './main/assets/teste.csv'
+    'terrain': './main/assets/teste.csv',
+    'enemy': './main/assets/level_0/level_0_enemy.csv',
+    'boundaries': './main/assets/level_0/level_0_boundaries.csv',
+    'grass': './main/assets/level_0/level_0_grass.csv',
+    'imgs': {
+        'terrain': './main/assets/imgs/terrain_tileset.png',
+        'enemy': './main/assets/imgs/enemy.png',
+        'boundaries': './main/assets/imgs/boundaries.png',
+        'grass': './main/assets/imgs/grass_fine.png',
+        }
     }
 
 level_0 = {

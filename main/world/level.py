@@ -25,13 +25,13 @@ class Level:
         self.level_data = levels[self.level_index]
         self.sprites = {}
         self.create_sprites(self.level_data)
+        self.limits = self.camera.find_limits(self.sprites['terrain'].sprites())
 
 
     def create_sprites(self, data):
         for key in list(data.keys()):
-            if key == 'player':
+            if key == 'player' or key == 'imgs' :
                 break
-
             data_csv = import_csv(data.get(key))
             self.sprites[key] = self.create_sprite_groups(
                 data_csv, key
@@ -124,8 +124,10 @@ class Level:
 
         self.camera.update(
             self.player.rect, 
-            self.min_x, 
-            self.sprites['terrain'].sprites()[-1].rect.x
+            self.limits[0], 
+            self.limits[1],
+            self.limits[2],
+            self.limits[3]
             )
 
     def draw(self, surface):
