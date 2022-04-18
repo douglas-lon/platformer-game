@@ -17,7 +17,6 @@ class OneToManyCollision:
                         <= collidable_rect.centerx 
                         <= sprite.rect.right + TILE_SIZE//2):
                     
-
                     if collidable_rect.top < sprite.rect.top:
                         callback[0](sprite.rect)
                         break

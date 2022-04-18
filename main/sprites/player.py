@@ -69,7 +69,7 @@ class Player(pg.sprite.Sprite):
         # é necessario transforma-la em zero
         if abs(self.velocity.x) < 0.18:
             self.velocity.x = 0
-
+        
         # Adiciona na posição a velocidade calculada 
         # mais a metade da aceleração atual, junto com o y com gravidade
         self.position += pg.math.Vector2(

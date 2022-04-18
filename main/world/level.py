@@ -9,6 +9,7 @@ from main.world.game_data import levels
 from main.sprites.tiles import Tile 
 from main.sprites.player import Player, TestPlayer
 
+
 class Level:
     def __init__(self, level_index):
         # Inicializa Player e Camera
@@ -18,6 +19,7 @@ class Level:
         self.camera = Camera()
         # Cria variavel para definir o limite da esquerda do mapa
         self.min_x = 0
+        self.restart = False
 
         self.level_index = level_index
         # Carrega o mapa baseado no index passado
@@ -99,6 +101,26 @@ class Level:
                 True
                 )
     
+    def define_level_boundaries(self):
+        if self.player.rect.left <= self.limits[0]:
+            x = (self.limits[0] + self.player.rect.width / 2) 
+            self.player.position.x = x + 2
+            self.player.velocity.x = 0
+
+        if self.player.rect.right >= self.limits[1]:
+            x = (self.limits[1] - self.player.rect.width / 2) 
+            self.player.position.x = x - 1
+            self.player.velocity.x = 0
+        
+        if self.player.rect.top <= self.limits[2]:
+            self.player.rect.top = self.limits[2]
+            self.player.position.y = self.limits[2] + TILE_SIZE
+            self.player.velocity.y = 0
+
+        if self.player.rect.top > self.limits[3]:
+            self.restart = True
+        
+
     def change_level(self):
         level_index = ''
         if (self.player.rect.x 
@@ -112,15 +134,14 @@ class Level:
     def update(self, dt):
         #self.terrain_sprite.update()
         self.player.update(dt)
+        self.define_level_boundaries()
         self.collision_handler()
-        
         for key in list(self.sprites):
             if key == 'enemy':
                 for spr in self.sprites[key].sprites():
                     if spr.health <= 0:
                         self.sprites[key].remove(spr)
                     spr.update(self.player.rect)
-
 
         self.camera.update(
             self.player.rect, 

@@ -1,4 +1,5 @@
 import pygame as pg
+from main.menu.menus import SimpleMenu
 from main.utils.settings import *
 from main.world.level import Level
 
@@ -12,10 +13,13 @@ class Game:
         # Inicializa a tela e atribui um nome
         self.screen = pg.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGTH))
         pg.display.set_caption('Platformer Game')
+
+        self.menus = SimpleMenu(48, self.screen)
         
         # Cria um timer para travar fps
         self.clock = pg.time.Clock()
-        self.level = Level(0)
+        self.current_level = 0
+        self.level = Level(self.current_level)
         self.max_level = 0
     
     def change_current_level(self, index):
@@ -25,6 +29,8 @@ class Game:
     
     def run(self):
         # Game Loop
+
+        self.menus.menu("HeHe Adventure", 'Press Any Key To Start', 'green', 'brown')
 
         while self.runnning:
             self.last_tick = self.clock.tick(60)
@@ -41,6 +47,10 @@ class Game:
     def update(self):
         # Atualizar variaveis ou acionar metodos
         self.level.update(self.last_tick/1000)
+
+        if self.level.restart:
+            self.menus.menu('You Died', 'Press Any Key To Restart', 'green', 'brown')
+            self.change_current_level(self.current_level)
 
     def draw(self):
         # Desenha as coisas na tela
