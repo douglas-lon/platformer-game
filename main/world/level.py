@@ -6,17 +6,19 @@ from main.utils.collision import(OneToManyCollision,
                                 ManyToManyCollision)
 from main.utils.camera import Camera
 from main.world.game_data import levels
-from main.sprites.tiles import Tile 
+from main.sprites.tiles import AnimatedTile, Tile 
 from main.sprites.player import Player, TestPlayer
+from main.world.ui import UI
 
 
 class Level:
-    def __init__(self, level_index):
+    def __init__(self, level_index, health):
         # Inicializa Player e Camera
         #self.player = Player((200, 64), TILE_SIZE))
-        self.player = TestPlayer((200, 64), 60)
+        self.player = TestPlayer((200, 64), 60, health)
         #self.enemie = Enemy((400, 200), 60)
         self.camera = Camera()
+        self.ui = UI('./main/assets/imgs/hp_bar.png')
         # Cria variavel para definir o limite da esquerda do mapa
         self.min_x = 0
         self.restart = False
@@ -54,6 +56,12 @@ class Level:
                         enemy = Enemy((x, y + 4), 60)
                         sprite_group.add(enemy)
                         continue
+                    
+                    if sprite_name in ['grass', 'key']:
+                        animated_tile = AnimatedTile(x, y, sprites)
+                        sprite_group.add(animated_tile)
+                        continue
+                    
 
                     tile = Tile(x,y,TILE_SIZE, sprites[int(col)])
                     sprite_group.add(tile)
@@ -78,6 +86,12 @@ class Level:
                 self.player.on_right_collision
             ],
             self.player.velocity.x
+            )
+        
+        OneToManyCollision.any_side_collision(
+            self.player,
+            self.sprites['enemy'],
+            self.player.take_damage
             )
 
         ManyToManyCollision.any_side_collision(
@@ -119,7 +133,10 @@ class Level:
 
         if self.player.rect.top > self.limits[3]:
             self.restart = True
-        
+    
+    def is_dead(self):
+        if self.player.health <= 0:
+            self.restart = True
 
     def change_level(self):
         level_index = ''
@@ -136,13 +153,16 @@ class Level:
         self.player.update(dt)
         self.define_level_boundaries()
         self.collision_handler()
+        self.is_dead()
         for key in list(self.sprites):
             if key == 'enemy':
                 for spr in self.sprites[key].sprites():
                     if spr.health <= 0:
                         self.sprites[key].remove(spr)
                     spr.update(self.player.rect)
+                continue
 
+            self.sprites[key].update()
         self.camera.update(
             self.player.rect, 
             self.limits[0], 
@@ -165,6 +185,9 @@ class Level:
         
         #self.enemie.draw(surface, self.camera.offset)
         self.player.draw(surface, self.camera.offset)
+        
 
         for grass in self.sprites['grass'].sprites():
             grass.draw(surface, self.camera.offset)
+
+        self.ui.draw(surface, self.player.health)

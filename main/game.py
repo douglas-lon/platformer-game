@@ -16,16 +16,17 @@ class Game:
 
         self.menus = SimpleMenu(48, self.screen)
         
+        self.player_health = 100
         # Cria um timer para travar fps
         self.clock = pg.time.Clock()
         self.current_level = 0
-        self.level = Level(self.current_level)
+        self.level = Level(self.current_level, self.player_health)
         self.max_level = 0
     
     def change_current_level(self, index):
         del self.level
 
-        self.level = Level(index)
+        self.level = Level(index, self.player_health)
     
     def run(self):
         # Game Loop

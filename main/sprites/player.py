@@ -3,7 +3,7 @@ from main.utils.settings import GRAVITY, ACCELERATION, FRICTION, TILE_SIZE
 from main.items.gun import Gun
 
 class Player(pg.sprite.Sprite):
-    def __init__(self, pos, size):
+    def __init__(self, pos, size, health=100):
         super().__init__()
         
         # Cria surface com o tamanho desejado e coloca ela na posição
@@ -27,6 +27,13 @@ class Player(pg.sprite.Sprite):
         #  junto com variaveis booleanas para impedir double jump
         self.on_ground = False
         self.gun = Gun((264,60))
+        self.health = health
+
+        self.invicible = False
+        self.invincibility_time = 0
+        self.knock_side = 0
+        self.knock_distance = 0
+
 
     def input_handler(self):
         # Cuida dos iputs '-'
@@ -35,9 +42,11 @@ class Player(pg.sprite.Sprite):
         self.direction = 0
         if keys[pg.K_RIGHT]:
             self.direction = 1
+            self.knock_distance = 150
             self.facing = 1
         elif keys[pg.K_LEFT]:
             self.direction = -1
+            self.knock_distance = 150
             self.facing = 0
 
         if keys[pg.K_SPACE]:
@@ -80,9 +89,9 @@ class Player(pg.sprite.Sprite):
 
     def jump(self):
         if self.jump_count <= 20:
+            print(self.jump_count)
             self.velocity.y -= 2
             self.jump_count += 2
-
 
     def on_bottom_collision(self, rect):
         if self.velocity.y > 0:
@@ -106,14 +115,44 @@ class Player(pg.sprite.Sprite):
         self.position.x = x - 1
         self.velocity.x = 0
 
+    def get_knocback(self):
+        if self.knock_distance < 10:
+            self.velocity.y -= 2
+            self.velocity.x += self.knock_side * 2
+
+    def take_damage(self, rect_enemy):
+        if  not self.invicible:
+            if rect_enemy.right > self.rect.right:
+                self.knock_side = -1
+            elif rect_enemy.left < self.rect.left:
+                self.knock_side = 1
+
+            self.invicible = True
+            self.invincibility_time = 0
+            self.health -= 15
+            self.knock_distance = 0
+            self.jump_count = 30
+            self.on_ground = False
+
     def update(self, dt):
+        self.invincibility_time += 2
+        self.knock_distance += 1
+
         if self.on_ground:
             self.jump_count = 0
+
         self.input_handler()
         if not self.on_ground:
             self.apply_gravity(dt)
+
         self.movement()
+
+        self.get_knocback()
+
         self.gun.update_pos(self.rect.center, self.facing)
+
+        if self.invincibility_time > 100:
+            self.invicible = False
     
     def draw(self, surface, offset):
         # Desenha na tela o player baseado no offset
@@ -125,7 +164,7 @@ class Player(pg.sprite.Sprite):
         self.gun.draw(surface, offset)
     
 class TestPlayer(Player):
-    def __init__(self, pos, size):
-        super().__init__(pos, size)
+    def __init__(self, pos, size, health):
+        super().__init__(pos, size, health)
         self.image = pg.Surface((size,size))
         self.image.fill('green')
