@@ -19,7 +19,7 @@ class Game:
         self.player_health = 100
         # Cria um timer para travar fps
         self.clock = pg.time.Clock()
-        self.current_level = 0
+        self.current_level = -1
         self.level = Level(self.current_level, self.player_health)
         self.max_level = 0
     
@@ -43,6 +43,10 @@ class Game:
             if level_index != '' and level_index <= self.max_level:
                 self.change_current_level(level_index)
             
+            if self.level.end:
+                self.menus.menu('The End', 'Press Any Key To Close the Game', 'green', 'brown')
+                self.runnning = False
+
         pg.quit()
 
     def update(self):

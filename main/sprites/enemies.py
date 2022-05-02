@@ -19,40 +19,18 @@ class Enemy(pg.sprite.Sprite):
         self.rect.x += (self.velocity_x * direction)    
 
     def update(self, player_rect):
-        self.state_controller(player_rect)
+        self.enemy_logic(player_rect)
 
         # Move o inimigo para trás quando ele é atigingido
         if self.knockback > 0:
             self.rect.x += (self.direction*-1) * 10
             self.knockback -= 1
-
-    def find_player(self, player_rect):
-        # Achara o lado em que o player está em relação ao inimigo
-
-        if player_rect.right - 10 >= self.rect.right:
-            self.direction = 1
-        elif player_rect.left + 10 <= self.rect.left:
-            self.direction = -1
-
-        return self.direction
-
-    def chase_player(self, player_rect):
-        # Move na direção do player
-
-        direction = self.find_player(player_rect)
-        self.move(direction)
     
+    def enemy_logic(self, player_rect):
+        self.idle()
+
     def idle(self):
         self.move(self.direction)
-    
-    def state_controller(self,  player_rect):
-        if abs(distance_betwewn_rects(self.rect, player_rect)) <= 300:
-            # Testa se a distancia entre o player e o inimigo é 
-            # menor que 300 para o inimigo correr atrás dele
-
-            self.chase_player(player_rect)
-        else:
-            self.idle()
 
     def on_boundarie_collision(self, rect):
 
@@ -86,3 +64,44 @@ class Enemy(pg.sprite.Sprite):
             )
 
         pg.draw.rect(surface, 'yellow', offset_rect_health)
+
+
+class StalkerEnemy(Enemy):
+    def __init__(self, pos, size):
+        super().__init__(pos, size)
+
+    def find_player(self, player_rect):
+        # Achara o lado em que o player está em relação ao inimigo
+
+        if player_rect.right - 10 >= self.rect.right:
+            self.direction = 1
+        elif player_rect.left + 10 <= self.rect.left:
+            self.direction = -1
+
+        return self.direction
+
+    def chase_player(self, player_rect):
+        # Move na direção do player
+
+        direction = self.find_player(player_rect)
+        self.move(direction)
+    
+    def enemy_logic(self, player_rect):
+        self.state_controller(player_rect)
+    
+    def state_controller(self,  player_rect):
+        if abs(distance_betwewn_rects(self.rect, player_rect)) <= 300:
+            # Testa se a distancia entre o player e o inimigo é 
+            # menor que 300 para o inimigo correr atrás dele
+
+            self.chase_player(player_rect)
+        else:
+            self.idle()
+
+
+class ShooterEnemy(Enemy):
+    def __init__(self, pos, size):
+        super().__init__(pos, size)
+    
+    def shoot(self):
+        pass

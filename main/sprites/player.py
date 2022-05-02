@@ -1,3 +1,4 @@
+from random import choice
 import pygame as pg
 from main.utils.settings import GRAVITY, ACCELERATION, FRICTION, TILE_SIZE
 from main.items.gun import Gun
@@ -64,6 +65,12 @@ class Player(pg.sprite.Sprite):
             self.current_frame = 0
         
         self.image = self.animated_frames[self.status][int(self.current_frame)]
+
+        if self.invicible:
+            disappear = choice([255, 0])
+            self.image.set_alpha(disappear)
+        else:
+            self.image.set_alpha(255)
 
     def get_status(self):
         

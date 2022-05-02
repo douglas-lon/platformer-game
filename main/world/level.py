@@ -31,6 +31,7 @@ class Level:
         self.sprites = {}
         self.create_sprites(self.level_data)
         self.limits = self.camera.find_limits(self.sprites['terrain'].sprites())
+        self.end = False
 
     def create_sprites(self, data):
         for key in list(data.keys()):
@@ -176,10 +177,15 @@ class Level:
             
             if key == 'door' :
                 self.sprites[key].update(self.player.rect, self.player.items)
+                for door in self.sprites[key].sprites():
+                    if not door.entrance:
+                        self.end = door.get_state()
                 continue
 
             self.sprites[key].update()
         
+        
+
         self.camera.update(
             self.player.rect, 
             self.limits[0], 

@@ -12,6 +12,7 @@ class Door(pg.sprite.Sprite):
             self.image = self.frames[3]
 
         self.rect = self.image.get_rect(topleft=pos)
+        self.change_level = False
 
     def draw(self, surface, offset):
 
@@ -34,10 +35,14 @@ class Door(pg.sprite.Sprite):
         if keys[pg.K_e] and is_colliding:
             self.states(items)
     
+    def get_state(self):
+        return self.change_level
+
     def states(self, items):
         if 'key' in items:
             self.image = self.frames[2]
-            change_level = True
+            self.change_level = True
         else:
             self.image = self.frames[1]
-            change_level = False
+        
+
