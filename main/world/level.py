@@ -6,7 +6,8 @@ from main.utils.collision import(OneToManyCollision,
                                 ManyToManyCollision)
 from main.utils.camera import Camera
 from main.world.game_data import levels
-from main.sprites.tiles import AnimatedTile, Tile 
+from main.sprites.tiles import AnimatedTile, Tile
+from main.sprites.door import Door
 from main.sprites.player import Player, TestPlayer
 from main.world.ui import UI
 
@@ -14,8 +15,8 @@ from main.world.ui import UI
 class Level:
     def __init__(self, level_index, health):
         # Inicializa Player e Camera
-        #self.player = Player((200, 64), TILE_SIZE))
-        self.player = TestPlayer((200, 64), 60, health)
+        self.player = Player((200, 64), 54, health)
+        #self.player = TestPlayer((200, 64), 54, health)
         #self.enemie = Enemy((400, 200), 60)
         self.camera = Camera()
         self.ui = UI('./main/assets/imgs/hp_bar.png')
@@ -30,7 +31,6 @@ class Level:
         self.sprites = {}
         self.create_sprites(self.level_data)
         self.limits = self.camera.find_limits(self.sprites['terrain'].sprites())
-
 
     def create_sprites(self, data):
         for key in list(data.keys()):
@@ -61,7 +61,15 @@ class Level:
                         animated_tile = AnimatedTile(x, y, sprites)
                         sprite_group.add(animated_tile)
                         continue
-                    
+                        
+                    if sprite_name == 'door':
+                        if int(col) == 3:
+                            door = Door(sprites, (x, y), True)
+                        else:
+                            door = Door(sprites, (x, y))
+                        
+                        sprite_group.add(door)
+                        continue
 
                     tile = Tile(x,y,TILE_SIZE, sprites[int(col)])
                     sprite_group.add(tile)
@@ -114,6 +122,9 @@ class Level:
                 enemy.on_bullet_collision,
                 True
                 )
+        
+        if pg.sprite.spritecollide(self.player, self.sprites['key'], True):
+            self.player.items.append('key')
     
     def define_level_boundaries(self):
         if self.player.rect.left <= self.limits[0]:
@@ -154,6 +165,7 @@ class Level:
         self.define_level_boundaries()
         self.collision_handler()
         self.is_dead()
+
         for key in list(self.sprites):
             if key == 'enemy':
                 for spr in self.sprites[key].sprites():
@@ -161,8 +173,13 @@ class Level:
                         self.sprites[key].remove(spr)
                     spr.update(self.player.rect)
                 continue
+            
+            if key == 'door' :
+                self.sprites[key].update(self.player.rect, self.player.items)
+                continue
 
             self.sprites[key].update()
+        
         self.camera.update(
             self.player.rect, 
             self.limits[0], 

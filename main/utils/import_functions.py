@@ -10,23 +10,23 @@ def import_csv(path):
             layout.append(list(row))
         return layout
 
-def import_sprites(path):
+def import_sprites(path, tile_size=TILE_SIZE):
     full_image = pg.image.load(path).convert_alpha()
-    qtd_sprite_x = full_image.get_size()[0] // TILE_SIZE
-    qtd_sprite_y = full_image.get_size()[1] // TILE_SIZE
+    qtd_sprite_x = full_image.get_size()[0] // tile_size
+    qtd_sprite_y = full_image.get_size()[1] // tile_size
 
     separated_sprites = []
     for col in range(qtd_sprite_y):
         for row in range(qtd_sprite_x):
-            x = row * TILE_SIZE
-            y = col * TILE_SIZE
+            x = row * tile_size
+            y = col * tile_size
 
             sprite = full_image.subsurface(
-                    pg.Rect(x,y, TILE_SIZE, TILE_SIZE)
+                    pg.Rect(x,y, tile_size, tile_size)
                     )
 
             new_sprite = pg.Surface(
-                (TILE_SIZE, TILE_SIZE), flags=pg.SRCALPHA
+                (tile_size, tile_size), flags=pg.SRCALPHA
                 )
             new_sprite.blit(sprite, (0,0))
             

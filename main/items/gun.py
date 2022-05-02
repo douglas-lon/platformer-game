@@ -6,7 +6,7 @@ class Gun(pg.sprite.Sprite):
     def __init__(self, pos):
         super().__init__()
         self.image = pg.Surface((30,20))
-        self.image.fill('blue')
+        #self.image.fill('blue')
         self.rect = self.image.get_rect(topleft=pos)
         self.rect.size = (20, 10)
         self.bullets = pg.sprite.Group()
@@ -29,11 +29,12 @@ class Gun(pg.sprite.Sprite):
         self.manage_bullets()
 
     def fire(self):
+        vel = 7
         if self.time >= 30:
             if self.change:
-                self.bullets.add(Bullet(self.rect.topleft, -4))
+                self.bullets.add(Bullet(self.rect.topleft, -vel))
             else:
-                self.bullets.add(Bullet(self.rect.topright, 4))
+                self.bullets.add(Bullet(self.rect.topright, vel))
             self.time = 0
             print('pow', len(self.bullets))
 
@@ -47,11 +48,11 @@ class Gun(pg.sprite.Sprite):
 
     def draw(self, surface, offset):
         # Desenha na tela o player baseado no offset
-        offset_rect = pg.Rect(
-            (self.rect.x - offset.x, self.rect.y - offset.y), 
-            self.image.get_size()
-            )
-        surface.blit(self.image, offset_rect)
+        #offset_rect = pg.Rect(
+        #    (self.rect.x - offset.x, self.rect.y - offset.y), 
+        #    self.image.get_size()
+        #    )
+        #surface.blit(self.image, offset_rect)
 
         if self.bullets:
             for bullet in self.bullets:

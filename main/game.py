@@ -55,7 +55,7 @@ class Game:
 
     def draw(self):
         # Desenha as coisas na tela
-        self.screen.fill('grey')
+        self.screen.fill('lightblue')
         self.level.draw(self.screen)
         pg.display.update()
 

@@ -1,15 +1,19 @@
 import pygame as pg
 from main.utils.settings import GRAVITY, ACCELERATION, FRICTION, TILE_SIZE
 from main.items.gun import Gun
+from main.utils.import_functions import import_sprites
 
 class Player(pg.sprite.Sprite):
     def __init__(self, pos, size, health=100):
         super().__init__()
         
         # Cria surface com o tamanho desejado e coloca ela na posição
-        self.image = pg.image.load(
-            './main/assets/imgs/player.png'
-            ).convert_alpha()
+        #self.idle_frames = import_sprites('./main/assets/imgs/idle.png', 54)
+        #self.run_frames = import_sprites('./main/assets/imgs/run.png', 54)
+        #print(self.idle_frames)
+        self.create_sprites()
+
+        self.image = self.animated_frames['idle'][0]
             
         self.rect = self.image.get_rect(topleft=pos)
         self.rect.size = (size, size)
@@ -20,6 +24,10 @@ class Player(pg.sprite.Sprite):
         self.velocity = pg.math.Vector2(0,0)
         self.direction = 0
         self.facing = 1
+
+        self.animation_speed = 0.15
+        self.current_frame = 0
+        self.status = 'idle'
 
         self.jumping = False
         self.jump_count = 0
@@ -34,6 +42,40 @@ class Player(pg.sprite.Sprite):
         self.knock_side = 0
         self.knock_distance = 0
 
+        self.items = []
+    
+    def create_sprites(self):
+        self.animated_frames = {
+            'idle':[],
+            'run': [],
+            'jump': [],
+            'landing': []
+        }
+
+        for i in self.animated_frames.keys():
+            self.animated_frames[i] = import_sprites(f'./main/assets/imgs/{i}.png', 54)
+
+    def animate(self):
+        self.get_status()
+
+        self.current_frame += self.animation_speed
+
+        if self.current_frame > len(self.animated_frames[self.status]):
+            self.current_frame = 0
+        
+        self.image = self.animated_frames[self.status][int(self.current_frame)]
+
+    def get_status(self):
+        
+        if self.velocity.y < 0:
+            self.status = 'jump'
+        elif self.velocity.y > 0:
+            self.status = 'landing'
+        else:
+            if self.direction != 0:
+                self.status = 'run'
+            else:
+                self.status = 'idle'
 
     def input_handler(self):
         # Cuida dos iputs '-'
@@ -42,11 +84,9 @@ class Player(pg.sprite.Sprite):
         self.direction = 0
         if keys[pg.K_RIGHT]:
             self.direction = 1
-            self.knock_distance = 150
             self.facing = 1
         elif keys[pg.K_LEFT]:
             self.direction = -1
-            self.knock_distance = 150
             self.facing = 0
 
         if keys[pg.K_SPACE]:
@@ -89,7 +129,6 @@ class Player(pg.sprite.Sprite):
 
     def jump(self):
         if self.jump_count <= 20:
-            print(self.jump_count)
             self.velocity.y -= 2
             self.jump_count += 2
 
@@ -141,15 +180,17 @@ class Player(pg.sprite.Sprite):
         if self.on_ground:
             self.jump_count = 0
 
+        self.animate()
         self.input_handler()
         if not self.on_ground:
             self.apply_gravity(dt)
 
+        
         self.movement()
 
         self.get_knocback()
 
-        self.gun.update_pos(self.rect.center, self.facing)
+        self.gun.update_pos(self.rect.midleft, self.facing)
 
         if self.invincibility_time > 100:
             self.invicible = False
@@ -161,6 +202,7 @@ class Player(pg.sprite.Sprite):
             self.image.get_size()
             )
         surface.blit(self.image, offset_rect)
+        
         self.gun.draw(surface, offset)
     
 class TestPlayer(Player):

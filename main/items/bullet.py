@@ -3,8 +3,8 @@ import pygame as pg
 class Bullet(pg.sprite.Sprite):
     def __init__(self, init_pos, vel):
         super().__init__() 
-        self.image = pg.Surface((15,15))
-        self.image.fill('pink')
+        self.image = pg.image.load('./main/assets/imgs/bullet.png')
+        #self.image.fill('pink')
         self.rect = self.image.get_rect(topleft=(init_pos))
         self.velocity = vel
         self.init_pos = init_pos

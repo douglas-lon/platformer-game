@@ -3,11 +3,15 @@ test = {
     'enemy': './main/assets/level_0/level_0_enemy.csv',
     'boundaries': './main/assets/level_0/level_0_boundaries.csv',
     'grass': './main/assets/level_0/level_0_grass.csv',
+    'door': './main/assets/test_door.csv',
+    'key': './main/assets/test_key.csv',
     'imgs': {
         'terrain': './main/assets/imgs/terrain_tileset.png',
         'enemy': './main/assets/imgs/enemy.png',
         'boundaries': './main/assets/imgs/boundaries.png',
         'grass': './main/assets/imgs/grass_fine.png',
+        'door': './main/assets/imgs/door.png',
+        'key': './main/assets/imgs/key.png'
         }
     }
 
