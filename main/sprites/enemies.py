@@ -1,12 +1,17 @@
 import pygame as pg
 from random import randint
+from main.utils.import_functions import import_sprites
 from main.utils.support import distance_betwewn_rects
 
 class Enemy(pg.sprite.Sprite):
-    def __init__(self, pos, size):
+    def __init__(self, pos, size, path):
         super().__init__()
-        self.image = pg.Surface((size,size))
-        self.image.fill('red')
+
+        self.frames = import_sprites(path, 64)
+        self.current_frame = 0
+
+        self.image = self.frames[self.current_frame]
+        #self.image.fill('red')
         self.rect = self.image.get_rect(topleft=pos)
 
         self.velocity_x = randint(4, 6)
@@ -20,12 +25,25 @@ class Enemy(pg.sprite.Sprite):
 
     def update(self, player_rect):
         self.enemy_logic(player_rect)
+        self.animate()
 
         # Move o inimigo para trás quando ele é atigingido
         if self.knockback > 0:
             self.rect.x += (self.direction*-1) * 10
             self.knockback -= 1
     
+    def animate(self):
+        self.current_frame += 0.15
+
+        if self.current_frame > len(self.frames):
+            self.current_frame = 0
+
+        self.image = self.frames[int(self.current_frame)]
+
+        if self.direction < 0:
+            self.image = pg.transform.flip(self.image, True, False)
+        
+
     def enemy_logic(self, player_rect):
         self.idle()
 
@@ -67,8 +85,8 @@ class Enemy(pg.sprite.Sprite):
 
 
 class StalkerEnemy(Enemy):
-    def __init__(self, pos, size):
-        super().__init__(pos, size)
+    def __init__(self, pos, size, path):
+        super().__init__(pos, size, path)
 
     def find_player(self, player_rect):
         # Achara o lado em que o player está em relação ao inimigo
@@ -100,8 +118,8 @@ class StalkerEnemy(Enemy):
 
 
 class ShooterEnemy(Enemy):
-    def __init__(self, pos, size):
-        super().__init__(pos, size)
+    def __init__(self, pos, size, path):
+        super().__init__(pos, size, path)
     
     def shoot(self):
         pass

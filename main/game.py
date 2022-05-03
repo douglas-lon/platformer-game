@@ -19,7 +19,7 @@ class Game:
         self.player_health = 100
         # Cria um timer para travar fps
         self.clock = pg.time.Clock()
-        self.current_level = -1
+        self.current_level = 0
         self.level = Level(self.current_level, self.player_health)
         self.max_level = 0
     

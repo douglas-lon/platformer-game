@@ -37,6 +37,7 @@ class Player(pg.sprite.Sprite):
         self.on_ground = False
         self.gun = Gun((264,60))
         self.health = health
+        self.flip = False
 
         self.invicible = False
         self.invincibility_time = 0
@@ -63,8 +64,17 @@ class Player(pg.sprite.Sprite):
 
         if self.current_frame > len(self.animated_frames[self.status]):
             self.current_frame = 0
+
         
         self.image = self.animated_frames[self.status][int(self.current_frame)]
+        
+        if self.direction < 0:
+            self.flip = True
+        elif self.direction > 0:
+            self.flip = False
+
+        if self.flip:
+            self.image = pg.transform.flip(self.image, True, False)
 
         if self.invicible:
             disappear = choice([255, 0])

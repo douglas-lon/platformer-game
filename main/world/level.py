@@ -1,5 +1,5 @@
 import pygame as pg
-from main.sprites.enemies import Enemy
+from main.sprites.enemies import Enemy, StalkerEnemy
 from main.utils.import_functions import import_csv, import_sprites
 from main.utils.settings import *
 from main.utils.collision import(OneToManyCollision, 
@@ -54,7 +54,7 @@ class Level:
                     y = row_i * TILE_SIZE
 
                     if sprite_name == 'enemy':
-                        enemy = Enemy((x, y + 4), 60)
+                        enemy = StalkerEnemy((x, y + 4), 60 , './main/assets/imgs/enemy_dumb.png')
                         sprite_group.add(enemy)
                         continue
                     
